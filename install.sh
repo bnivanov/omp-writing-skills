@@ -22,7 +22,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_DEST="${HOME}/.omp/agent/skills"
 DEST_DIR="$DEFAULT_DEST"
 
-ALL_SKILLS=(writing-pipeline writing writing-voice no-ai-slop)
+ALL_SKILLS=(writing-pipeline writing writing-voice no-ai-slop unslop-file unslop-review)
 
 CMD=""
 UPDATE_ALL=0
@@ -45,6 +45,8 @@ Skills (pick one or more):
   writing            writing/           — 15 developmental craft rules, concrete anchors, medium routing
   writing-voice      writing-voice/     — cadence governor (anti-staccato, anti-antithesis) & linter gate
   no-ai-slop         no-ai-slop/        — surgical minimum-edit de-slop editor and AI-tell detector
+  unslop-file        unslop-file/       — in-place doc & memory file cleaner with code-block immutability
+  unslop-review      unslop-review/     — line-anchored direct code review comments without throat-clearing
   all                all of the above (recommended)
 
 Target Harness Flags (defaults to Oh My Pi):
@@ -337,14 +339,15 @@ while [[ "$#" -gt 0 ]]; do
       fi
       shift
       ;;
-    writing-pipeline|writing|writing-voice|no-ai-slop)
-      SELECTED+=("$1")
-      shift
-      ;;
     *)
-      echo "error: unknown argument: $1" >&2
-      usage >&2
-      exit 1
+      if is_known_skill "$1"; then
+        SELECTED+=("$1")
+        shift
+      else
+        echo "error: unknown argument: $1" >&2
+        usage >&2
+        exit 1
+      fi
       ;;
   esac
 done

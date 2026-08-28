@@ -37,6 +37,8 @@ Most AI writing tools either dump 50 banned words into a prompt or attempt to tr
 | **`writing-voice`** | [`skills/writing-voice`](skills/writing-voice) | Rhythm governor: enforces natural human cadence, bans staccato fragments (`"X. And Y. And Z."`), faux-insight pivots (`"not X, but Y"`), and programmed wobble. Includes deterministic pre-publish linter script. | OMP Voice Framework & [`slopless`](https://github.com/berelevant-ai/slopless) |
 | **`writing`** | [`skills/writing`](skills/writing) | 15 developmental craft rules, concrete anchors, fact discipline, and medium routing across technical specs, docs, essays, and social. | [`Anbeeld/WRITING.md`](https://github.com/Anbeeld/WRITING.md) (MIT, v1.4.2) |
 | **`no-ai-slop`** | [`skills/no-ai-slop`](skills/no-ai-slop) | Surgical minimum-effective-edit cleaner targeting 20+ specific AI slop patterns (colon reveals, superficial `-ing` clauses, puffery) without flattening author personality. | [`petergyang/no-ai-slop`](https://github.com/petergyang/no-ai-slop) (MIT, v1.0.0) |
+| **`unslop-file`** | [`skills/unslop-file`](skills/unslop-file) | In-place doc and memory cleaner (`CLAUDE.md`, `AGENTS.md`) with code-block immutability, tricolon stripping, and automatic `.original.md` backups. | [`MohamedAbdallah-14/unslop`](https://github.com/MohamedAbdallah-14/unslop) (MIT) |
+| **`unslop-review`** | [`skills/unslop-review`](skills/unslop-review) | Line-anchored, direct PR review comments (`L<line>: <severity> <observation>. <fix>.`) that drop corporate AI throat-clearing. | [`MohamedAbdallah-14/unslop`](https://github.com/MohamedAbdallah-14/unslop) (MIT) |
 
 ---
 
@@ -104,6 +106,14 @@ Just ask in chat — the agent loads the relevant skill on demand:
   ```text
   "Apply the writing-voice rules to make sure this reply avoids staccato and antithesis pivots."
   ```
+- **In-place documentation de-slopping (code-safe):**
+  ```text
+  "Run unslop-file on AGENTS.md in balanced mode."
+  ```
+- **Direct, line-anchored PR code review:**
+  ```text
+  "Run unslop-review on this PR diff to generate line-anchored comments without throat-clearing."
+  ```
 
 ### Pre-publish AST lint gate
 
@@ -133,4 +143,5 @@ Run the deterministic AST linter on any Markdown file before publishing:
 - **`writing` ruleset:** Created by [Anbeeld](https://github.com/Anbeeld/WRITING.md) (MIT License).
 - **`no-ai-slop` skill:** Created by [Peter Yang](https://github.com/petergyang/no-ai-slop) (MIT License).
 - **`slopless` linter:** Created by [berelevant-ai](https://github.com/berelevant-ai/slopless) (MIT License).
+- **`unslop-file` & `unslop-review`:** Created by [MohamedAbdallah-14](https://github.com/MohamedAbdallah-14/unslop) (MIT License).
 - Orchestration, voice calibration governor, installer, research landscape, and integration by Bozhidar Ivanov & OMP Contributors (MIT License).

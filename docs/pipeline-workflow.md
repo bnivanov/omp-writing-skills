@@ -49,6 +49,17 @@ If the script returns exit code `1`:
 
 ---
 
+## Operational modes & MECE dispatching
+
+Choose the operational flow matching your input:
+
+1. **Full content creation (Notes $\rightarrow$ Final Draft):** Run `writing-pipeline` (Stages 1–5).
+2. **Pasted text cleanup / Tell detection:** Load `no-ai-slop` on the provided text snippet.
+3. **In-place memory/doc cleanup (`CLAUDE.md`, README):** Run `unslop-file` on the target file path (preserves code blocks and creates `.original.md` backup).
+4. **PR / Code review feedback:** Run `unslop-review` on diffs or patches for line-anchored comments.
+5. **Conversational voice guard:** Load `writing-voice` for user-facing chat answers.
+---
+
 ## Context tolerance matrix
 
 Strictness levels adjust across mediums to ensure high readability without breaking standard domain norms:
