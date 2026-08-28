@@ -1,0 +1,8 @@
+{
+  "name": "omp-slopless-gate",
+  "private": true,
+  "description": "Deterministic AST-based pre-publish linter for omp-writing-skills",
+  "dependencies": {
+    "slopless": "0.2.36"
+  }
+}
