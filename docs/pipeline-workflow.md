@@ -20,18 +20,18 @@ Key drafting directives:
 - **Rhythm control:** Ensure sentences flow naturally with real causal conjunctions (`because`, `although`, `when`, `if`, `so`). Zero staccato fragments.
 
 ### Stage 3: Subagent isolation (de-slop pass)
-For drafts longer than ~300 words, isolate the editor role:
-- Spawn a dedicated subagent with `skills/no-ai-slop/SKILL.md`.
+For drafts longer than ~300 words, isolate the editor role to eliminate self-grading bias:
+- Spawn a dedicated editor subagent with `skills/no-ai-slop/SKILL.md`.
 - Task: Apply the **minimum effective edit**.
 - The editor scans for:
-  - Binary contrasts (`not X, but Y`)
+  - Binary contrasts (`not X, but Y`, split-sentence negations, multi-negation countdowns)
   - Colon reveals (`The reason: it works`)
   - Superficial `-ing` clauses (`highlighting the team's commitment`)
   - Importance puffery (`stands as a testament`)
   - Empty adverbs (`crucially`, `fundamentally`, `simply`)
 
 ### Stage 4: Deterministic AST linting
-Execute the lint script:
+Execute the deterministic lint script:
 
 ```bash
 skills/writing-voice/scripts/slopless-lint.sh path/to/draft.md
@@ -46,3 +46,27 @@ If the script returns exit code `1`:
 - Present the exact, complete Markdown in chat.
 - Ask the user for approval or edits.
 - Never auto-publish to external channels without explicit approval.
+
+---
+
+## Context tolerance matrix
+
+Strictness levels adjust across mediums to ensure high readability without breaking standard domain norms:
+
+| Context Profile | Negation Strictness | Fragment Tolerance | Bullet / List Policy | Technical Jargon Carve-outs |
+|---|---|---|---|---|
+| **Technical Blog** | High (ban all rhetorical negation) | Low (full syntax required) | Moderate (only for discrete steps) | Allowed (e.g., *latency*, *idempotency*, *cache invalidation*) |
+| **System Docs & API** | High (direct imperative instructions) | Strict (no fragments) | High (structured parameter tables & steps) | Full technical vocabulary preserved |
+| **Executive / ADR / RFC**| High (ban marketing pivots) | Strict (zero staccato) | Moderate (decision records, pros/cons) | Standard architectural terms (*resilience*, *throughput*) |
+| **Social / Short Post** | High (ban generic "It's not X" hooks) | Low (conversational cadence) | Low (prefer flowing narrative blocks) | Domain-specific acronyms permitted |
+| **Casual Chat / Email** | Moderate (natural spoken syntax) | Moderate (natural spoken pacing) | Low (prose by default) | Informal colloquialisms allowed |
+
+---
+
+## The "Never-inject" editor guardrails
+
+When editing or humanizing content, the editor must adhere to strict provenance rules:
+1. **Never inject fake first-person:** Do not add `"I think"`, `"In my experience"`, or personal anecdotes unless present in the author's original draft.
+2. **Never inject artificial stakes:** Avoid opening with `"In an era of relentless disruption..."` or `"Now more than ever..."`.
+3. **Never inject forced contrarianism:** Do not fabricate disagreement or dramatize routine engineering choices.
+4. **Subtraction over decoration:** Sharpen claims, delete filler words, and clarify syntax. Never "add soul" by inserting slang or superficial idiosyncrasies.

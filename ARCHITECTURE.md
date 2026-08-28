@@ -8,6 +8,9 @@ Most attempts to make LLMs write "human" fail because they approach the problem 
 1. **Prompt-only "Do Not" lists:** A list of 50 banned words does not give the model a positive model of sentence architecture or paragraph development.
 2. **Burstiness injectors:** Forcing random sentence-length oscillation produces disjointed, choppy text with awkward fragments.
 3. **Self-grading drafters:** When the same LLM prompt writes and reviews text in the same context turn, it rarely catches its own structural blindspots.
+4. **Editor over-reach:** Poorly constrained editing prompts fabricate author stance, inject artificial slang, or flatten natural rough edges.
+
+---
 
 ## System architecture
 
@@ -31,7 +34,7 @@ Most attempts to make LLMs write "human" fail because they approach the problem 
 │                          (skills/no-ai-slop)                            │
 │   • Surgical pattern removal (petergyang/no-ai-slop v1.0.0)             │
 │   • Subagent isolation (editor agent separate from drafter)             │
-│   • Preservation of author quirks, humor, and bluntness                 │
+│   • Never-Inject provenance guardrails                                  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                     4. Deterministic AST Lint Gate                      │
 │                         (scripts/slopless-lint.sh)                      │
@@ -40,12 +43,14 @@ Most attempts to make LLMs write "human" fail because they approach the problem 
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+---
+
 ## Layer breakdown
 
 ### 1. Voice & rhythm layer (`writing-voice`)
 The voice layer governs sentence acoustics and cadence. Its primary rules prevent common LLM degradation:
 - **No Staccato:** Prohibits isolated fragments manufactured for punchiness.
-- **No Antithesis Pivots:** Prohibits faux-insight negation structures (`"It's not X. It's Y."`).
+- **No Antithesis Pivots:** Prohibits faux-insight negation structures (`"It's not X. It's Y."`, split-sentence negation, multi-negation countdowns).
 - **No Programmed Wobble:** Disables artificial sentence-length variation algorithms.
 
 ### 2. Craft & developmental layer (`writing`)
@@ -59,11 +64,14 @@ Vendored from `petergyang/no-ai-slop` (MIT), this layer operates on the **minimu
 - Detects and removes 20+ recognized AI slop patterns (colon reveals, superficial `-ing` clauses, importance puffery, synonym cycling).
 - Does not homogenize rough or distinctive prose into corporate blandness.
 - In multi-agent harnesses, runs inside an isolated editor subagent so the drafting model does not evaluate its own output.
+- **Never-Inject Rule:** Strictly prohibits injecting unprompted personal anecdotes, artificial stakes, or forced contrarianism.
 
 ### 4. Deterministic linter gate (`slopless`)
 Powered by `berelevant-ai/slopless` (MIT), this layer provides non-probabilistic quality enforcement:
 - Parses markdown AST to detect structural negation reframes and brochure tokens.
 - Returns a hard exit code (`0` for clean, `1` for violations) before any draft can be delivered or published.
+
+---
 
 ## Precedence and conflict resolution
 
@@ -72,5 +80,5 @@ When rules across layers interact, they resolve in this strict order:
 2. **Explicit user brief and medium requirements.**
 3. **Rhythm governor (`writing-voice`):** Prevents mechanical staccato or forced pivots.
 4. **Developmental rules (`writing`):** Enforces evidence and structure.
-5. **Editing rules (`no-ai-slop`):** Strips residual slop.
+5. **Editing rules (`no-ai-slop`):** Strips residual slop under the minimum effective edit rule.
 6. **Linter pass (`slopless`):** Validates deterministic compliance.

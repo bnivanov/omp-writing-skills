@@ -1,14 +1,16 @@
-# Research Landscape & Genesis
+# Research landscape & genesis
 
 This document records the empirical research, comparative audits, and ecosystem findings that led to the creation of `omp-writing-skills`.
 
-## Background & Genesis
+## Background & genesis
 
 In mid-2026, widespread dissatisfaction with standard LLM writing prompts led to an ecosystem-wide audit of available tools. Most available prompts and skills labeled "anti-AI", "humanizer", or "prose-polisher" were evaluated across GitHub, Reddit (`r/claudeskills`, `r/ClaudeCode`), Hacker News, and developer communities.
 
 The audit revealed a core paradox: **the most popular "humanizer" tools in the ecosystem actively made writing worse by replacing one set of AI clichés with another.**
 
-## Comparative evaluation
+---
+
+## Comparative ecosystem evaluation
 
 ### 1. The viral prompt / catalog category
 - **`blader/humanizer` (36,000+ stars):** A viral prompt cataloging banned words and stylistic recommendations. While it accurately identifies buzzwords, its worked examples encourage isolated sentence fragments and landing-page hype lines.
@@ -24,13 +26,43 @@ The audit revealed a core paradox: **the most popular "humanizer" tools in the e
 - **`Anbeeld/WRITING.md` (350+ stars):** A comprehensive 15-rule developmental craft engine combining web readability, concrete anchors, fact discipline, and explicit medium routing.
 - **`berelevant-ai/slopless` (320+ stars):** An AST-based deterministic parser that flags structural AI tells like `negation-reframe` with zero LLM hallucinations.
 
+### 4. Multi-context & tiered rule systems (mid-2026 developments)
+- **`conorbronsdon/avoid-ai-writing` (3,500+ stars, v3.26.0):** Pioneered multi-tiered categorization of AI markers, medium-specific tolerance profiles (technical-blog, docs, executive, social), and the explicit "Never-Inject" guardrail preventing tools from fabricating author stance.
+- **`kdgbalmer/ai-tells` (MIT):** Detailed the shift from 2024 surface vocabulary tells (e.g. `delve`, `tapestry`) to 2025/2026 syntactic structures (split-negation, multi-negation countdowns, bullet-everything lists).
+- **`docwriter-org/plain-writing-skill` (360+ stars):** Formalized the revision diff view and focused on readability metrics for agentic workflows.
+- **`SNL-UCSB/paper-writing-skill` & `Haojae/scipilot-writing-skill`:** Validated the strict phase separation pattern: Fact Gathering / Outline $\rightarrow$ Draft $0$ $\rightarrow$ Isolated Subagent Audit $\rightarrow$ AST Linter $\rightarrow$ Human Verification.
+
+---
+
+## Tiered vocabulary & tell taxonomy
+
+Empirical research shows that words and patterns fall into four distinct operational tiers:
+
+```
++-----------------------------------------------------------------------+
+|  Tier 1A: AI Frequency Markers (Unconditional Flag)                   |
+|  "delve", "testament to", "tapestry", "landscape", "pivotal", "beacon"|
++-----------------------------------------------------------------------+
+|  Tier 1B: Wordiness & Rhetorical Fluff (Cut or Direct Replacement)   |
+|  "crucially", "fundamentally", "effectively", "needless to say"       |
++-----------------------------------------------------------------------+
+|  Tier 2: Cluster Tells (Flag when 2+ appear in same paragraph)        |
+|  "robust", "seamless", "comprehensive", "tailored", "holistic"        |
++-----------------------------------------------------------------------+
+|  Tier 3: Technical Domain Carve-Outs (Preserve in Technical Contexts) |
+|  "latency", "idempotency", "throughput", "cache invalidation", "mutex"|
++-----------------------------------------------------------------------+
+```
+
+---
+
 ## Key research insights
 
 ### Insight 1: Burstiness cannot be faked by algorithm
-Human writing has variable sentence length because human thoughts vary in complexity, qualification, and emotional weight. When an LLM is instructed to mechanically vary sentence lengths (e.g. "insert a 3-word sentence now"), the result feels uncanny and broken.
+Human writing has variable sentence length because human thoughts vary in complexity, qualification, and emotional weight. When an LLM is instructed to mechanically vary sentence lengths (e.g. "insert a 3-word sentence now"), the result feels uncanny, disjointed, and stilted.
 
-### Insight 2: Antithesis pivots are the #1 tell of shallow LLM prose
-Chatbots ubiquitously rely on the formula:
+### Insight 2: Antithesis pivots are the #1 structural tell of LLMs
+Chatbots ubiquitously rely on rhetorical negation:
 > *"The problem isn't X. It's Y."* / *"It's not just about speed; it's about control."*
 
 This pattern simulates insight without providing substance. Banning synthetic antithesis pivots forces the model to state positive claims with grounded evidence.
@@ -40,6 +72,8 @@ When a single prompt drafts and edits in one pass, it suffers from self-confirma
 
 ### Insight 4: Deterministic gates beat prompt persuasion
 Prompt rules reduce slop probability from ~80% to ~5%. The remaining 5% must be caught by a deterministic AST parser (`slopless`) before publication.
+
+---
 
 ## Conclusion
 
