@@ -26,6 +26,7 @@ The audit revealed a core paradox: **the most popular "humanizer" tools in the e
 - **`Anbeeld/WRITING.md` (350+ stars):** A comprehensive 15-rule developmental craft engine combining web readability, concrete anchors, fact discipline, and explicit medium routing.
 - **`berelevant-ai/slopless` (320+ stars):** An AST-based deterministic parser that flags structural AI tells like `negation-reframe` with zero LLM hallucinations.
 - **`simonw/tools` LLM cliché highlighter (Apache-2.0):** A client-side regex highlighter (38 patterns as of 2026-08) covering Wikipedia *Signs of AI writing* plus chain/echo/anaphora detectors (`no X, no Y`, `sit with that`, `that's not nothing`, stacked questions). Adopted as `scripts/cliche-lint.mjs` — same finders, file CLI, code-fence masking. Not a rewrite engine.
+- **`MohamedAbdallah-14/unslop` (file/review skills):** Adopted preservation contract, vocab lists, and line-anchored review format. **Rejected** burstiness injectors, anti-detector paraphrases, and contraction/"soul" recipes — they conflict with the rhythm governor.
 
 ### 4. Multi-context & tiered rule systems (mid-2026 developments)
 - **`conorbronsdon/avoid-ai-writing` (3,500+ stars, v3.26.0):** Pioneered multi-tiered categorization of AI markers, medium-specific tolerance profiles (technical-blog, docs, executive, social), and the explicit "Never-Inject" guardrail preventing tools from fabricating author stance.

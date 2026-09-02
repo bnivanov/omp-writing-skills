@@ -8,7 +8,7 @@ license: MIT
 
 Adapted from [MohamedAbdallah-14/unslop](https://github.com/MohamedAbdallah-14/unslop) (MIT).
 
-Use this skill when reviewing pull requests, patches, or code diffs to generate feedback that sounds like an experienced, thoughtful teammate rather than an automated politeness engine.
+Use this mode when reviewing pull requests, patches, or code diffs to generate feedback that sounds like a teammate: direct on the issue, concrete on the fix, kind on the human.
 
 ---
 
