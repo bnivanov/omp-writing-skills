@@ -1,0 +1,9 @@
+{
+  "name": "omp-writing-lint",
+  "private": true,
+  "type": "module",
+  "description": "slopless AST gate + Willison cliché detectors for omp-writing-skills",
+  "dependencies": {
+    "slopless": "0.2.36"
+  }
+}

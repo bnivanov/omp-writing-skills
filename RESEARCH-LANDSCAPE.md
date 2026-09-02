@@ -25,6 +25,7 @@ The audit revealed a core paradox: **the most popular "humanizer" tools in the e
 - **`petergyang/no-ai-slop` (6,200+ stars):** Focuses on minimum effective edits and catalogues 20+ precise AI patterns (colon reveals, superficial `-ing` analysis, importance puffery, weasel attribution) without flattening natural voice.
 - **`Anbeeld/WRITING.md` (350+ stars):** A comprehensive 15-rule developmental craft engine combining web readability, concrete anchors, fact discipline, and explicit medium routing.
 - **`berelevant-ai/slopless` (320+ stars):** An AST-based deterministic parser that flags structural AI tells like `negation-reframe` with zero LLM hallucinations.
+- **`simonw/tools` LLM cliché highlighter (Apache-2.0):** A client-side regex highlighter (38 patterns as of 2026-08) covering Wikipedia *Signs of AI writing* plus chain/echo/anaphora detectors (`no X, no Y`, `sit with that`, `that's not nothing`, stacked questions). Adopted as `scripts/cliche-lint.mjs` — same finders, file CLI, code-fence masking. Not a rewrite engine.
 
 ### 4. Multi-context & tiered rule systems (mid-2026 developments)
 - **`conorbronsdon/avoid-ai-writing` (3,500+ stars, v3.26.0):** Pioneered multi-tiered categorization of AI markers, medium-specific tolerance profiles (technical-blog, docs, executive, social), and the explicit "Never-Inject" guardrail preventing tools from fabricating author stance.
@@ -71,10 +72,13 @@ This pattern simulates insight without providing substance. Banning synthetic an
 When a single prompt drafts and edits in one pass, it suffers from self-confirmation bias. Spawning a separate editor subagent that receives only the draft and the de-slop rules produces a 4x reduction in residual AI clichés.
 
 ### Insight 4: Deterministic gates beat prompt persuasion
-Prompt rules reduce slop probability from ~80% to ~5%. The remaining 5% must be caught by a deterministic AST parser (`slopless`) before publication.
+Prompt rules reduce slop probability from ~80% to ~5%. The remaining 5% must be caught by a deterministic parser (`slopless` + Willison cliché finders) before publication.
+
+### Insight 5: Overlapping skills fight
+Six separately loadable skills applied conflicting edits to the same draft. v2 folds them into one `writing` skill with exclusive modes (`draft` / `edit` / `detect` / `file` / `review` / `chat`).
 
 ---
 
 ## Conclusion
 
-`omp-writing-skills` consolidates these insights into a production-grade, multi-stage architecture that combines the best verified open-source components with rigorous orchestration.
+`omp-writing-skills` consolidates these insights into one skill: rhythm, craft, minimum-edit cleanup, and a two-pass lint gate (AST + cliché detectors).

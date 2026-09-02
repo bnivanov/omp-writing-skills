@@ -1,11 +1,9 @@
 ---
-name: no-ai-slop
-description: "Edit drafts into sharper, more human writing while preserving the writer's personal voice, or detect AI-slop patterns without rewriting. Use when the user wants a draft clearer, more direct, more opinionated, or less AI-sounding, or asks whether writing reads as AI."
+title: Minimum-edit de-slop
+source: https://github.com/petergyang/no-ai-slop
 license: MIT
-metadata:
-  author: Peter Yang (petergyang)
-  version: '1.0.0'
-  source: https://github.com/petergyang/no-ai-slop
+version: "1.0.0"
+author: Peter Yang (petergyang)
 ---
 
 # No AI slop

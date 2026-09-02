@@ -1,0 +1,14 @@
+omp-writing-skills
+Copyright 2026 Bozhidar Ivanov & Contributors
+
+This product includes pattern-detection logic derived from
+Simon Willison's LLM cliché highlighter:
+
+  https://github.com/simonw/tools/blob/main/llm-cliche-highlighter.html
+
+Copyright Simon Willison
+Licensed under the Apache License, Version 2.0.
+A copy of the license is in third_party/APACHE-2.0.txt.
+
+Modifications (CLI, fenced-code masking, line reporting) are part of
+omp-writing-skills and remain under the MIT License in LICENSE.

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Install omp-writing-skills into ~/.omp/agent/skills (or Claude Code, Codex, Cursor, OpenCode).
-# You pick which skills to install; bare invocation prints help and installs nothing.
+# Install the writing skill into ~/.omp/agent/skills (or Claude Code, Codex, Cursor, OpenCode).
+# Bare invocation prints help and installs nothing.
 #
-#   ./install.sh install writing-pipeline   install writing-pipeline only
-#   ./install.sh install all                install all skills and install slopless linter
-#   ./install.sh update                     refresh only skills already installed
-#   ./install.sh update --all               converge destination to the full repo set
-#   ./install.sh list                       show install status for every repo skill
-#   ./install.sh uninstall no-ai-slop       remove a previously installed skill
+#   ./install.sh install writing            install the skill + linter deps
+#   ./install.sh install all                same (one skill in this repo)
+#   ./install.sh update                     refresh if already installed
+#   ./install.sh update --all               install or refresh, and remove retired skill dirs
+#   ./install.sh list                       show install status
+#   ./install.sh uninstall writing          remove the skill
 #
 # Target harnesses:
 #   --omp         install to ~/.omp/agent/skills (default)
@@ -22,7 +22,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_DEST="${HOME}/.omp/agent/skills"
 DEST_DIR="$DEFAULT_DEST"
 
-ALL_SKILLS=(writing-pipeline writing writing-voice no-ai-slop unslop-file unslop-review)
+ALL_SKILLS=(writing)
+RETIRED_SKILLS=(writing-pipeline writing-voice no-ai-slop unslop-file unslop-review)
+# Old names still accepted on the CLI; they install `writing`.
+ALIASES=(writing-pipeline writing-voice no-ai-slop unslop-file unslop-review)
 
 CMD=""
 UPDATE_ALL=0
@@ -32,24 +35,22 @@ TOUCHED=()
 usage() {
   cat <<'EOF'
 Usage:
-  ./install.sh install <skill>...|all   install selected skills (or every skill)
-  ./install.sh <skill>...|all           legacy form — same as install
-  ./install.sh update [skill...]        refresh only skills already present in destination
-  ./install.sh update --all             refresh installed skills and add any missing repo skills
-  ./install.sh list                     show every repo skill and whether it is installed / outdated
-  ./install.sh uninstall <skill>...     remove named skills from the destination
+  ./install.sh install writing|all      install the writing skill
+  ./install.sh writing|all              legacy form — same as install
+  ./install.sh update                   refresh if already installed
+  ./install.sh update --all             refresh/add writing and remove retired skill dirs
+  ./install.sh list                     show install status
+  ./install.sh uninstall writing        remove the writing skill
   ./install.sh -h|--help                show this help
 
-Skills (pick one or more):
-  writing-pipeline   writing-pipeline/  — end-to-end multi-stage drafting & editing orchestrator
-  writing            writing/           — 15 developmental craft rules, concrete anchors, medium routing
-  writing-voice      writing-voice/     — cadence governor (anti-staccato, anti-antithesis) & linter gate
-  no-ai-slop         no-ai-slop/        — surgical minimum-edit de-slop editor and AI-tell detector
-  unslop-file        unslop-file/       — in-place doc & memory file cleaner with code-block immutability
-  unslop-review      unslop-review/     — line-anchored direct code review comments without throat-clearing
-  all                all of the above (recommended)
+Skill:
+  writing            skills/writing/  — draft, edit, detect, file-clean, review, lint
+  all                same (this repo ships one skill)
 
-Target Harness Flags (defaults to Oh My Pi):
+Retired names (install writing, then remove the old dirs):
+  writing-pipeline, writing-voice, no-ai-slop, unslop-file, unslop-review
+
+Target harness flags (defaults to Oh My Pi):
   --omp              ~/.omp/agent/skills (default)
   --claude           ~/.claude/skills
   --codex            ~/.codex/skills
@@ -61,12 +62,23 @@ With no arguments this prints the help and installs nothing.
 EOF
 }
 
-is_known_skill() {
-  local s
-  for s in "${ALL_SKILLS[@]}"; do
-    [[ "$s" == "$1" ]] && return 0
+canonical_skill() {
+  local s="$1" a
+  if [[ "$s" == "writing" ]]; then
+    echo "writing"
+    return 0
+  fi
+  for a in "${ALIASES[@]}"; do
+    if [[ "$s" == "$a" ]]; then
+      echo "writing"
+      return 0
+    fi
   done
   return 1
+}
+
+is_known_skill() {
+  canonical_skill "$1" >/dev/null
 }
 
 dest_skill_path() {
@@ -93,13 +105,11 @@ mark_touched() {
   [[ "$seen" -eq 0 ]] && TOUCHED+=("$s")
 }
 
-# Recursively compare two directories
 dirs_equal() {
   local d1="$1" d2="$2"
   if [[ ! -d "$d1" || ! -d "$d2" ]]; then
     return 1
   fi
-  # Compare diff ignoring node_modules or .DS_Store
   diff -rq -x 'node_modules' -x '.DS_Store' -x 'package-lock.json' "$d1" "$d2" >/dev/null 2>&1
 }
 
@@ -135,21 +145,32 @@ copy_skill() {
   mark_touched "$name"
 }
 
+remove_retired_skills() {
+  local name dst
+  for name in "${RETIRED_SKILLS[@]}"; do
+    dst="$(dest_skill_path "$name")"
+    if [[ -d "$dst" ]]; then
+      rm -rf "$dst"
+      echo "Removed retired skill $name from $DEST_DIR (folded into writing)"
+    fi
+  done
+}
+
 setup_linter_deps() {
-  local linter_scripts_dir="$DEST_DIR/writing-voice/scripts"
+  local linter_scripts_dir="$DEST_DIR/writing/scripts"
   if [[ -d "$linter_scripts_dir" && -f "$linter_scripts_dir/package.json" ]]; then
     if command -v npm >/dev/null 2>&1; then
       echo "Setting up deterministic linter (slopless) in $linter_scripts_dir..."
       (cd "$linter_scripts_dir" && npm install --omit=dev --silent)
       echo "Linter ready."
     else
-      echo "warning: npm not found in PATH. Install node/npm to run scripts/slopless-lint.sh" >&2
+      echo "warning: npm not found in PATH. Install node/npm to run scripts/lint.sh" >&2
     fi
   fi
 }
 
 cmd_list() {
-  local name src dst status
+  local name src dst status retired
   printf '%-20s %-32s %s\n' "SKILL" "DESTINATION" "STATUS"
   printf '%-20s %-32s %s\n' "-----" "-----------" "------"
   for name in "${ALL_SKILLS[@]}"; do
@@ -163,6 +184,12 @@ cmd_list() {
       status="installed (outdated)"
     fi
     printf '%-20s %-32s %s\n' "$name" "$dst" "$status"
+  done
+  for retired in "${RETIRED_SKILLS[@]}"; do
+    dst="$(dest_skill_path "$retired")"
+    if [[ -d "$dst" ]]; then
+      printf '%-20s %-32s %s\n' "$retired" "$dst" "retired (run update --all to remove)"
+    fi
   done
 }
 
@@ -189,16 +216,15 @@ cmd_uninstall() {
 cmd_install() {
   local name
   if [[ "${#SELECTED[@]}" -eq 0 ]]; then
-    echo "error: install requires at least one skill name or 'all'" >&2
+    echo "error: install requires writing or all" >&2
     usage >&2
     exit 1
   fi
   for name in "${SELECTED[@]}"; do
-    copy_tool "$name" "Installed" 2>/dev/null || copy_skill "$name" "Installed"
+    copy_skill "$name" "Installed"
   done
-  if wants "writing-voice" || wants "all"; then
-    setup_linter_deps
-  fi
+  remove_retired_skills
+  setup_linter_deps
 }
 
 cmd_update() {
@@ -211,6 +237,7 @@ cmd_update() {
         copy_skill "$name" "Added"
       fi
     done
+    remove_retired_skills
     setup_linter_deps
     return 0
   fi
@@ -223,9 +250,7 @@ cmd_update() {
       fi
       copy_skill "$name" "Updated"
     done
-    if wants "writing-voice"; then
-      setup_linter_deps
-    fi
+    setup_linter_deps
     return 0
   fi
 
@@ -236,16 +261,14 @@ cmd_update() {
   done
 
   if [[ "${#installed[@]}" -eq 0 ]]; then
-    echo "nothing installed yet in $DEST_DIR — use 'install <skill>...' or 'install all'"
+    echo "nothing installed yet in $DEST_DIR — use 'install writing' or 'install all'"
     exit 0
   fi
 
   for name in "${installed[@]}"; do
     copy_skill "$name" "Updated"
   done
-  if wants "writing-voice"; then
-    setup_linter_deps
-  fi
+  setup_linter_deps
 }
 
 print_epilogue() {
@@ -253,27 +276,15 @@ print_epilogue() {
   if [[ "${#TOUCHED[@]}" -eq 0 ]]; then
     return 0
   fi
-
   echo
-  echo "Summary:"
-  echo "  Skills ${action_label} into: $DEST_DIR"
+  echo "${action_label}."
+  echo "  Load in chat:  writing   (also matches /write, no-ai-slop, unslop-file, …)"
+  echo "  Lint a draft:"
+  echo "       $DEST_DIR/writing/scripts/lint.sh draft.md"
   echo
-  echo "Next steps:"
-  echo "  1. In chat, invoke directly:"
-  echo "       \"Run writing-pipeline to draft an article on ...\""
-  echo "       \"Run no-ai-slop on my draft in docs/rfc.md\""
-  echo "       \"Check my draft against writing ruleset\""
-  echo "  2. Pre-publish deterministic lint:"
-  if [[ -f "$DEST_DIR/writing-voice/scripts/slopless-lint.sh" ]]; then
-    echo "       $DEST_DIR/writing-voice/scripts/slopless-lint.sh draft.md"
-  else
-    echo "       ./skills/writing-voice/scripts/slopless-lint.sh draft.md"
-  fi
-  echo
-  echo "Documentation & guides: ARCHITECTURE.md, RESEARCH-LANDSCAPE.md, docs/pipeline-workflow.md"
+  echo "Documentation: README.md, ARCHITECTURE.md, RESEARCH-LANDSCAPE.md"
 }
 
-# --- argument parsing ---
 if [[ "$#" -eq 0 ]]; then
   usage
   exit 0
@@ -281,10 +292,6 @@ fi
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
-    install|update|list|uninstall)
-      CMD="$1"
-      shift
-      ;;
     -h|--help)
       usage
       exit 0
@@ -310,38 +317,35 @@ while [[ "$#" -gt 0 ]]; do
       shift
       ;;
     --dest)
-      shift
-      if [[ "$#" -eq 0 ]]; then
-        echo "error: --dest requires a directory path" >&2
+      if [[ "$#" -lt 2 ]]; then
+        echo "error: --dest requires a directory" >&2
         exit 1
       fi
-      DEST_DIR="$1"
-      shift
+      DEST_DIR="$2"
+      shift 2
       ;;
     --all)
-      if [[ "$CMD" != "update" ]]; then
-        echo "error: --all is only valid with 'update'" >&2
-        usage >&2
-        exit 1
-      fi
       UPDATE_ALL=1
       shift
       ;;
-    all)
-      if [[ "$CMD" == "uninstall" ]]; then
-        echo "error: 'all' is not valid with uninstall — name skills explicitly" >&2
+    install|update|list|uninstall)
+      if [[ -n "$CMD" ]]; then
+        echo "error: multiple commands" >&2
         exit 1
       fi
-      if [[ "$CMD" == "update" ]]; then
-        UPDATE_ALL=1
-      else
-        SELECTED=("${ALL_SKILLS[@]}")
-      fi
+      CMD="$1"
+      shift
+      ;;
+    all)
+      SELECTED=("${ALL_SKILLS[@]}")
       shift
       ;;
     *)
-      if is_known_skill "$1"; then
-        SELECTED+=("$1")
+      if canonical_skill "$1" >/dev/null; then
+        SELECTED+=("$(canonical_skill "$1")")
+        if [[ "$1" != "writing" ]]; then
+          echo "note: $1 is now the writing skill" >&2
+        fi
         shift
       else
         echo "error: unknown argument: $1" >&2
@@ -365,14 +369,14 @@ case "$CMD" in
     ;;
   install)
     cmd_install
-    print_epilogue "installed"
+    print_epilogue "Installed"
     ;;
   update)
     cmd_update
-    if [[ "$UPDATE_ALL" -eq 1 ]]; then
-      print_epilogue "updated/added"
-    else
-      print_epilogue "updated"
-    fi
+    print_epilogue "Updated"
+    ;;
+  *)
+    echo "error: unknown command: $CMD" >&2
+    exit 1
     ;;
 esac

@@ -1,6 +1,7 @@
 ---
-name: unslop-review
-description: "Direct, human code review comments without corporate-AI throat-clearing or polite padding. Enforces line-anchored format: L<line>: <severity> <observation>. <fix>."
+title: Line-anchored review comments
+source: https://github.com/MohamedAbdallah-14/unslop
+license: MIT
 ---
 
 # Unslop review (direct, teammate code review)

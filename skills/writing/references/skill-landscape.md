@@ -13,9 +13,10 @@ Most public writing skills and "humanizer" prompts fall into one of two traps:
 
 | Stars* | Repo / Tool | Classification | Verdict & Findings |
 |---:|---|---|---|
-| 6,200+ | `petergyang/no-ai-slop` | Editor / Cleaner | **Adopted (Core Component).** Bans "This is not X. It's Y.", colon reveals, and stacked punchy fragments. Uses a clean minimum-effective-edit philosophy. |
-| 350+ | `Anbeeld/WRITING.md` | Craft / Ruleset | **Adopted (Core Component).** Comprehensive 15-rule developmental craft engine. Enforces concrete anchors, fact discipline, medium routing, and forbids programmed wobble. |
-| 320+ | `berelevant-ai/slopless` | Deterministic Gate | **Adopted (Lint Gate).** AST-based deterministic parser that flags `negation-reframe` and structural AI tells. A reliable gate, not a prompt. |
+| 6,200+ | `petergyang/no-ai-slop` | Editor / Cleaner | **Adopted (edit mode).** Bans "This is not X. It's Y.", colon reveals, and stacked punchy fragments. Uses a clean minimum-effective-edit philosophy. |
+| 350+ | `Anbeeld/WRITING.md` | Craft / Ruleset | **Adopted (craft reference).** Comprehensive 15-rule developmental craft engine. Enforces concrete anchors, fact discipline, medium routing, and forbids programmed wobble. |
+| 320+ | `berelevant-ai/slopless` | Deterministic Gate | **Adopted (lint).** AST-based deterministic parser that flags `negation-reframe` and structural AI tells. A reliable gate, not a prompt. |
+| — | `simonw/tools` LLM cliché highlighter | Deterministic Gate | **Adopted (lint).** 38 regex/chain/echo detectors including Wikipedia Signs of AI writing. Ported to `cliche-lint.mjs`. Not a rewrite engine. |
 | 70+ | `ehmo/slopkit` (slopbeth) | Anti-Slop Guide | **Reference.** Good observation: replacing AI slop with clipped aphorisms and dramatic fragments is equally defective. |
 | 36,000+ | `blader/humanizer` | Viral Prompt | **Rejected.** Viral prompt catalog. Permits isolated dramatic fragments; its worked examples frequently teach staccato pacing. |
 | 15,000+ | `op7418/Humanizer-zh` | Translation / Fork | **Rejected.** Chinese localization of `blader/humanizer` with identical structural limitations. |
@@ -34,9 +35,9 @@ Most public writing skills and "humanizer" prompts fall into one of two traps:
 
 ## The composite architecture solution
 
-Rather than relying on a single prompt, the optimal writing system separates concerns:
+One skill (`writing`), exclusive modes, two-pass lint:
 
-1. **Voice calibration & rhythm governor (`writing-voice`):** Sets baseline rhythm, bans fake antithesis pivots and staccato fragments, and establishes natural conversational cadences.
-2. **Comprehensive developmental ruleset (`writing`):** Enforces evidence-first anchors, medium routing, and logical progression across paragraphs.
-3. **Targeted de-slop editor (`no-ai-slop`):** Runs minimal surgical edits to clean up AI tells without erasing the author's personality.
-4. **Deterministic AST lint gate (`slopless`):** Validates the final markdown against known structural patterns before publication.
+1. **Rhythm (always):** Bans fake antithesis pivots and staccato fragments.
+2. **Craft (`references/craft.md`):** Evidence-first anchors and medium routing.
+3. **Edit / file / review:** Minimum-edit cleanup, or code-safe in-place, or line-anchored comments.
+4. **Lint (`slopless` + `cliche-lint.mjs`):** AST tells plus Willison cliché finders.

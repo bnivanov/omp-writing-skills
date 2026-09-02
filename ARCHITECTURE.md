@@ -1,115 +1,76 @@
 # Architecture & design doctrine
 
-`omp-writing-skills` is a modular, agent-agnostic writing framework engineered to eliminate AI writing tells and generic chatbot cadence while preserving authentic human voice and technical precision.
+`omp-writing-skills` ships **one** agent skill, `writing`. Modes inside that skill replace the old six-skill split.
 
 ## The core design problem
 
-Most attempts to make LLMs write "human" fail because they approach the problem as a single monolithic prompt or a statistical trick:
-1. **Prompt-only "Do Not" lists:** A list of 50 banned words does not give the model a positive model of sentence architecture or paragraph development.
-2. **Burstiness injectors:** Forcing random sentence-length oscillation produces disjointed, choppy text with awkward fragments.
-3. **Self-grading drafters:** When the same LLM prompt writes and reviews text in the same context turn, it rarely catches its own structural blindspots.
-4. **Editor over-reach:** Poorly constrained editing prompts fabricate author stance, inject artificial slang, or flatten natural rough edges.
-
----
+1. **Prompt-only "Do Not" lists** do not give the model a positive sentence architecture.
+2. **Burstiness injectors** produce choppy fragments.
+3. **Self-grading drafters** miss their own tells.
+4. **Overlapping skills** (`writing-pipeline` vs `writing-voice` vs `no-ai-slop` vs `unslop-file`) applied conflicting edits to the same draft.
+5. **Editor over-reach** fabricates stance or slang.
 
 ## System architecture
 
-`omp-writing-skills` solves this through a 4-tier separation of concerns:
-
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                           1. Voice & Rhythm                             │
-│                         (skills/writing-voice)                          │
-│   • Anti-staccato governor                                              │
-│   • Anti-antithesis pivot rule ("not X, but Y")                         │
-│   • Natural connective syntax & clause coordination                     │
+│  skills/writing/SKILL.md                                                │
+│  Mode dispatch: draft | edit | detect | file | review | chat            │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                         2. Long-Form Craft Rules                        │
-│                            (skills/writing)                             │
-│   • 15 Developmental craft rules (Anbeeld/WRITING.md v1.4.2)            │
-│   • Medium routing (Technical docs, essays, social, PRs, UI)            │
-│   • Concrete evidence anchors & factual verification                    │
+│  1. Rhythm (always)                                                     │
+│     No staccato, no antithesis pivot, no programmed wobble              │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                   3. Specialized Editing & Review Tools                 │
-│                      (skills/no-ai-slop, unslop-file, unslop-review)     │
-│   • Surgical pattern removal (petergyang/no-ai-slop v1.0.0)             │
-│   • In-place doc cleaner with code immutability (unslop-file)           │
-│   • Line-anchored concise PR comments (unslop-review)                   │
-│   • Subagent isolation (editor agent separate from drafter)             │
-│   • Never-Inject provenance guardrails                                  │
+│  2. Craft (draft / long-form)                                           │
+│     references/craft.md  — Anbeeld/WRITING.md v1.4.2                    │
+│     references/medium-routing.md                                        │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                     4. Deterministic AST Lint Gate                      │
-│                         (scripts/slopless-lint.sh)                      │
-│   • Static AST evaluation via slopless (berelevant-ai/slopless v0.2.36) │
-│   • Pre-publish pass/fail gate on negation reframes & stacked fragments │
+│  3. Transform                                                           │
+│     edit   → references/edit.md   (petergyang/no-ai-slop)               │
+│     file   → references/file.md   (unslop, code-safe in-place)          │
+│     review → references/review.md (line-anchored comments)              │
+│     detect → lint only, no rewrite                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│  4. Deterministic lint  scripts/lint.sh                                 │
+│     slopless AST  +  cliche-lint.mjs (Willison 38-pattern port)         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
----
+Retired directories (`writing-pipeline`, `writing-voice`, `no-ai-slop`, `unslop-file`, `unslop-review`) are aliases in the installer. `update --all` deletes them from the destination.
 
-## Layer breakdown
+## Mode matrix
 
-### 1. Voice & rhythm layer (`writing-voice`)
-The voice layer governs sentence acoustics and cadence. Its primary rules prevent common LLM degradation:
-- **No Staccato:** Prohibits isolated fragments manufactured for punchiness.
-- **No Antithesis Pivots:** Prohibits faux-insight negation structures (`"It's not X. It's Y."`, split-sentence negation, multi-negation countdowns).
-- **No Programmed Wobble:** Disables artificial sentence-length variation algorithms.
+| Request | Mode | Contract |
+|---|---|---|
+| Notes → publishable draft | `draft` | Brief → draft → isolated edit subagent if long → lint → human approval. Never auto-publish. |
+| Pasted draft cleanup | `edit` | Minimum effective edit; `eval.md` checks; What changed. |
+| Audit / highlight clichés | `detect` | Quote hits from `lint.sh`. No rewrite, no authorship claim. |
+| Existing `AGENTS.md` / README | `file` | `FILE.original.md` backup; code/paths/commands byte-exact. |
+| PR diff comments | `review` | `L<line>: <severity> …` unless the harness schema wins. |
+| Short chat | `chat` | Rhythm only. No lint, no subagent. |
 
-### 2. Craft & developmental layer (`writing`)
-Vendored from `Anbeeld/WRITING.md` (MIT), this layer provides the deep structural engine:
-- **Concrete Anchors:** Requires every claim-bearing paragraph to feature verifiable numbers, named mechanisms, constraints, or direct observations.
-- **Fact Discipline:** Prohibits unobservable system behavior claims, invented metrics, or vague authority appeals (`"experts say"`).
-- **Medium Routing:** Dynamically adjusts register, structural density, and formatting for specific target media (specs vs. social vs. procedures).
+## Lint gate
 
-### 3. De-slop, transformation & review layer
+`scripts/lint.sh` runs:
 
-#### A. Minimum-edit cleaner (`no-ai-slop`)
-Vendored from `petergyang/no-ai-slop` (MIT), this layer operates on the **minimum effective edit** principle:
-- Detects and removes 20+ recognized AI slop patterns (colon reveals, superficial `-ing` clauses, importance puffery, synonym cycling).
-- Does not homogenize rough or distinctive prose into corporate blandness.
-- In multi-agent harnesses, runs inside an isolated editor subagent so the drafting model does not evaluate its own output.
-- **Never-Inject Rule:** Strictly prohibits injecting unprompted personal anecdotes, artificial stakes, or forced contrarianism.
+1. **slopless** (MIT) — markdown AST; negation-reframe; stacked fragments.
+2. **cliche-lint.mjs** — Apache-2.0 derivative of [Simon Willison's highlighter](https://github.com/simonw/tools/blob/main/llm-cliche-highlighter.html). Same finders (`makeChainFinder`, echo runs, anaphora, Wikipedia vocabulary). CLI additions: fenced/inline code masking, `file:line:col` output, `--off`, `--json`, `--self-test`.
 
-#### B. In-place documentation & memory cleaner (`unslop-file`)
-Adapted from `MohamedAbdallah-14/unslop` (MIT), this tool enables safe in-place de-slopping:
-- **Preservation Contract:** Guarantees that fenced code blocks, inline code, URLs, paths, commands, and headings remain 100% byte-for-byte untouched.
-- Automatically writes `FILE.original.md` backups before in-place modifications.
-- Strips negative-parallelism tricolons (`"No X, no Y, no Z"`).
+`--off colon-triple` is the usual docs carve-out (colon+triple is common in parameter lists).
 
-#### C. Direct code reviewer (`unslop-review`)
-Adapted from `MohamedAbdallah-14/unslop` (MIT), this tool generates human teammate code reviews:
-- Enforces strict line-anchored formatting: `L<line>: <severity> <observation>. <fix>.`
-- Uses explicit severity tags (`bug:`, `risk:`, `nit:`, `q:`).
-- Strips corporate throat-clearing and performative polite padding.
-### 4. Deterministic linter gate (`slopless`)
-Powered by `berelevant-ai/slopless` (MIT), this layer provides non-probabilistic quality enforcement:
-- Parses markdown AST to detect structural negation reframes and brochure tokens.
-- Returns a hard exit code (`0` for clean, `1` for violations) before any draft can be delivered or published.
+## Precedence
 
----
+1. Truth, safety, platform, harness output schema
+2. Explicit user instructions
+3. File-mode preservation contract
+4. Rhythm
+5. Craft
+6. De-slop
+7. Lint gate
 
-## MECE dispatching matrix
+## Never-inject
 
-To prevent overlap and conflicting tool behavior, each task routes to exactly one primary owner:
+Editors do not add first-person experience, manufactured stakes, or forced slang. Subtractive editing only.
 
-| Task / Request Type | Input Form | Primary Skill | Execution & Preservation Contract |
-|---|---|---|---|
-| **In-place file de-slopping** | Existing file path (`CLAUDE.md`, docs, README) | `unslop-file` | Creates `FILE.original.md` backup; strictly preserves code blocks, frontmatter, directives, tables, and paths byte-for-byte; modifies file in-place. |
-| **Draft text cleanup & tell detection** | Pasted draft snippet or chat text | `no-ai-slop` | Returns edited text + `What changed` or detect mode report; does not touch files on disk. |
-| **PR / Code review feedback** | Git patch, PR diff, or review comment | `unslop-review` | Generates line-anchored comments (`L<line>: <severity> ...`); defers to harness review schema when present. |
-| **End-to-end content drafting** | Topic, bullet notes, or brief | `writing-pipeline` | Executes 5-stage pipeline: Fact Brief $\rightarrow$ Voice Draft $\rightarrow$ Subagent Audit $\rightarrow$ AST Lint $\rightarrow$ Approval. |
-| **Voice & rhythm enforcement** | Any conversational or user-facing prose | `writing-voice` | Enforces natural compound syntax, eliminates staccato fragments and rhetorical negation. |
-| **Long-form developmental craft** | Essays, articles, formal technical specs | `writing` | Applies 15 craft rules, concrete anchors, and medium routing across formal genres. |
+## Drafter / editor split
 
----
-
-## Precedence and conflict resolution
-
-When multiple skills interact, rules resolve in this strict order:
-1. **Truth, safety, and platform constraints** (always non-negotiable).
-2. **Explicit user instructions & harness output schemas** (e.g. structured JSON review formats take precedence over plain-text review conventions).
-3. **Substrate preservation contract (`unslop-file`):** Immutable code blocks, frontmatter, directives, and technical identifiers win over all stylistic changes.
-4. **Rhythm governor (`writing-voice`):** Prevents mechanical staccato or forced pivots across all drafted text.
-5. **Developmental craft rules (`writing`):** Enforces concrete anchors and medium-specific routing.
-6. **Stylistic de-slopping (`no-ai-slop` / `unslop-file`):** Strips residual slop under the minimum effective edit rule.
-7. **Deterministic AST linter pass (`slopless`):** Validates deterministic compliance with a hard exit code.
+Drafts roughly longer than 300 words: spawn a separate editor subagent with `references/edit.md` only. The drafting context does not grade itself.

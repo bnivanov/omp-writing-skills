@@ -1,6 +1,7 @@
 ---
-name: unslop-file
-description: "Safe in-place de-slopping for documentation, memory files (CLAUDE.md, AGENTS.md, preferences), and READMEs. Preserves code blocks, tables, URLs, paths, and commands exactly. Writes .original.md backup."
+title: In-place file de-slop
+source: https://github.com/MohamedAbdallah-14/unslop
+license: MIT
 ---
 
 # Unslop file (in-place documentation & memory cleaner)
