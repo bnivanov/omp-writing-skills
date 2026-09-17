@@ -49,10 +49,20 @@ function makeRegexFinder(re) {
   };
 }
 
+// A markdown table row is layout, not a sentence: neighbouring rows repeat cell
+// values by design, so run detectors must not read them as repeated prose.
+function inTableRow(text, index) {
+  let i = index;
+  while (i > 0 && text[i - 1] !== "\n") i -= 1;
+  while (i < text.length && (text[i] === " " || text[i] === "\t")) i += 1;
+  return text[i] === "|";
+}
+
 function makeEchoFinder({ minGram = 3, minRun = 2 } = {}) {
   const SENT = /[^.!?\n]+[.!?]?/g;
   const grams = (s, n) => {
-    const w = s.toLowerCase().match(/[a-z0-9'’-]+/g) || [];
+    // INVARIANT: a word starts on a letter or digit; a leading hyphen is a list marker.
+    const w = s.toLowerCase().match(/[a-z0-9][a-z0-9'’-]*/g) || [];
     const out = new Set();
     for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(" "));
     return out;
@@ -60,6 +70,7 @@ function makeEchoFinder({ minGram = 3, minRun = 2 } = {}) {
   return function (text) {
     const sents = [];
     for (const m of text.matchAll(SENT)) {
+      if (inTableRow(text, m.index)) continue;
       if ((m[0].match(/\S+/g) || []).length >= 4) {
         sents.push({ start: m.index, end: m.index + m[0].length, text: m[0] });
       }
@@ -127,7 +138,8 @@ function makeAnaphoraFinder({ minRun = 3 } = {}) {
   return function (text) {
     const sents = [];
     for (const m of text.matchAll(SENT)) {
-      const w = m[0].match(/[A-Za-z'’-]+/);
+      // INVARIANT: a hyphen belongs inside a word (state-change), never at its start.
+      const w = m[0].match(/[A-Za-z][A-Za-z'’-]*/);
       if (w) {
         sents.push({
           start: m.index + m[0].indexOf(w[0]),
@@ -580,6 +592,19 @@ export const patternCases = [
   ],
   ["echo-triad", "The parser is fast today. The renderer is fast today.", 0, []],
   ["echo-triad", "The parser is fast. The tests are slow.", 0, []],
+  ["echo-triad", "- The parser is fast.\n- The parser is slow.", 0, []],
+  [
+    "echo-triad",
+    "| Slice | Repo | Branch | Worktree | Terminal | PR | Status |\n|---|---|---|---|---|---|---|\n| Handler raise | resonate-append | jay-resonate/handler | created | term live | not opened yet | in progress |\n| Prod alarm | resonate-append | jay-resonate/alarm | created | term live | not opened yet | in progress |",
+    0,
+    [],
+  ],
+  [
+    "echo-triad",
+    "| Slice | Repo |\n|---|---|\n| Handler raise | resonate-append |\nThe parser is a state machine. The renderer is a state machine.",
+    1,
+    [2],
+  ],
   ["performative-honesty", "I won't pretend the migration was painless.", 1],
   ["performative-honesty", "Let's be honest: nobody reads the docs.", 1],
   ["performative-honesty", "To be clear, the API is unchanged.", 1],
@@ -613,6 +638,8 @@ export const patternCases = [
   ["sentence-anaphora", "Maybe nobody needed it. Maybe the timing was off.", 0, []],
   ["sentence-anaphora", "The parser is small. The renderer is small. The scheduler is small.", 0, []],
   ["sentence-anaphora", "Everything changed. Everything slowed down. Everything cost more.", 1, [3]],
+  ["sentence-anaphora", "- Alpha does a thing.\n- Beta does another thing.\n- Gamma does a third thing.", 0, []],
+  ["sentence-anaphora", "- Maybe nobody needed it.\n- Maybe the timing was off.\n- Maybe both were true.", 1, [3]],
   ["colon-triple", "The fix needs three things: separate ports, separate processes, and separate state.", 1],
   ["colon-triple", "Each service gets its own everything: ports, processes, local state.", 1],
   ["colon-triple", "The recipe calls for flour, butter, and sugar.", 0],
