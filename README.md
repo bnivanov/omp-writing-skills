@@ -14,7 +14,7 @@
 
 Six overlapping skills (`writing-pipeline`, `writing-voice`, `writing`, `no-ai-slop`, `unslop-file`, `unslop-review`) fought over the same draft. v2 is a single skill, `writing`, with modes. Old names still match the description and the installer.
 
-Generic humanizers fail because they swap corporate slop for staccato theatre. This stack does not inject burstiness.
+Many humanizers swap corporate slop for staccato theatre or prescribe sentence-length variation by formula. This stack does not inject burstiness.
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -84,7 +84,7 @@ Lint:
 - **Exit 1:** findings (slopless and/or cliché hits)
 - **Exit 2:** usage / tool error
 
-`cliche-lint.mjs` ports the 38 detectors from [tools.simonwillison.net/llm-cliche-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter). It is a CLI, not a paste-and-highlight page. Code fences and inline code are masked.
+`cliche-lint.mjs` ports the 38 detectors from [tools.simonwillison.net/llm-cliche-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter) and adds two of its own: `stock-closer` ("Let that sink in", "Read that again") and `dash-density` (two or more em dashes, spaced en dashes, or spaced `--` in one paragraph). It is a CLI, not a paste-and-highlight page. Code fences and inline code are masked.
 
 ## Docs
 

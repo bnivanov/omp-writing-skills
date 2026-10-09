@@ -13,8 +13,8 @@ The audit revealed a core paradox: **the most popular "humanizer" tools in the e
 ## Comparative ecosystem evaluation
 
 ### 1. The viral prompt / catalog category
-- **`blader/humanizer` (36,000+ stars):** A viral prompt cataloging banned words and stylistic recommendations. While it accurately identifies buzzwords, its worked examples encourage isolated sentence fragments and landing-page hype lines.
-- **`op7418/Humanizer-zh` (15,000+ stars):** Direct localization of `blader/humanizer` with identical structural strengths and weaknesses.
+- **`blader/humanizer` (55,000+ stars, v3.1.0):** Originally a viral catalog whose worked examples encouraged isolated fragments and hype lines. v3 reorganizes 26 patterns by strength and now flags dramatic fragments and one-line closers itself (§2), plus "arguing with no one", vague association, writing about the document, and re-explaining what the reader knows. **Partially adopted** into `references/edit.md`. Still rejected: its "vary sentence length; real writing alternates short and long" instruction, full rewrites instead of minimum edits, and permission to add reactions to personal writing (conflicts with Never-inject).
+- **`op7418/Humanizer-zh` (15,000+ stars):** Chinese localization of an earlier `blader/humanizer`; not re-audited against v3.
 
 ### 2. The burstiness injector category
 - **`harshaneel/humanize` (360+ stars):** Prohibits negation framing, but mandates a sentence of 5 words or fewer every 3–4 sentences. This artificial constraint produces choppy, disjointed text.
@@ -27,6 +27,7 @@ The audit revealed a core paradox: **the most popular "humanizer" tools in the e
 - **`berelevant-ai/slopless` (320+ stars):** An AST-based deterministic parser that flags structural AI tells like `negation-reframe` with zero LLM hallucinations.
 - **`simonw/tools` LLM cliché highlighter (Apache-2.0):** A client-side regex highlighter (38 patterns as of 2026-08) covering Wikipedia *Signs of AI writing* plus chain/echo/anaphora detectors (`no X, no Y`, `sit with that`, `that's not nothing`, stacked questions). Adopted as `scripts/cliche-lint.mjs` — same finders, file CLI, code-fence masking. Not a rewrite engine.
 - **`MohamedAbdallah-14/unslop` (file/review skills):** Adopted preservation contract, vocab lists, and line-anchored review format. **Rejected** burstiness injectors, anti-detector paraphrases, and contraction/"soul" recipes — they conflict with the rhythm governor.
+- **`cursor/plugins` `unslop` (pstack):** Separate project from the unslop above. **Adopted** three technical-prose rules into `references/edit.md`: metaphor nouns posing as technical terms, feeling instead of mechanism, and over-compression. **Rejected** "one idea per sentence" and the blanket ban on em dashes and parentheses; both push toward choppy rhythm.
 
 ### 4. Multi-context & tiered rule systems (mid-2026 developments)
 - **`conorbronsdon/avoid-ai-writing` (3,500+ stars, v3.26.0):** Pioneered multi-tiered categorization of AI markers, medium-specific tolerance profiles (technical-blog, docs, executive, social), and the explicit "Never-Inject" guardrail preventing tools from fabricating author stance.

@@ -459,6 +459,34 @@ export const patterns = [
       /\bas\s+an\s+ai(?:\s+language)?\s+model\b|\bas\s+of\s+my\s+last\s+(?:update|training)\b|\bknowledge\s+cutoff\b|\bI\s+(?:cannot|can['\u2019]t|do\s+not|don['\u2019]t)\s+(?:browse\s+the\s+internet|access\s+real-?time)\b|contentReference|oaicite|turn0(?:search|news|image)\d*|attributableIndex|utm_source=/gi,
     ),
   },
+  {
+    id: "stock-closer",
+    name: "Stock one-line closers",
+    description: "Let that sink in, read that again, that is the real win, this distinction matters.",
+    find: makeRegexFinder(
+      /\blet\s+that\s+sink\s+in\b|\bread\s+that\s+(?:again|twice)\b|\b(?:that|this)(?:['\u2019]s|\s+(?:is|was))\s+the\s+real\s+(?:win|story|lesson|unlock|takeaway|flex)\b|\b(?:that|this)\s+distinction\s+matters\b/gi,
+    ),
+  },
+  {
+    id: "dash-density",
+    name: "Dash clusters",
+    description: "Two or more em dashes, spaced en dashes, or spaced double hyphens in one paragraph.",
+    find(text) {
+      const found = [];
+      const dash = /\u2014|\s\u2013\s|\s--\s/g;
+      for (const para of text.matchAll(/[^\n]+(?:\n[^\n]+)*/g)) {
+        const hits = [...para[0].matchAll(dash)];
+        if (hits.length < 2) continue;
+        const last = hits[hits.length - 1];
+        found.push({
+          start: para.index + hits[0].index,
+          end: para.index + last.index + last[0].length,
+          count: hits.length,
+        });
+      }
+      return found;
+    },
+  },
 ];
 
 export const patternsById = Object.fromEntries(patterns.map((p) => [p.id, p]));
@@ -688,6 +716,17 @@ export const patternCases = [
   ["ai-leftovers", "See example.com/page?utm_source=chatgpt.com for details.", 1],
   ["ai-leftovers", "contentReference[oaicite:0]{index=0}", 2],
   ["ai-leftovers", "The last update shipped on Tuesday.", 0],
+  ["stock-closer", "Let that sink in.", 1],
+  ["stock-closer", "Read that again.", 1],
+  ["stock-closer", "That is the real win.", 1],
+  ["stock-closer", "This distinction matters.", 1],
+  ["stock-closer", "Let the paint sink in overnight.", 0],
+  ["stock-closer", "Read that file again after the merge.", 0],
+  ["dash-density", "The update — announced today — is live.", 1, [2]],
+  ["dash-density", "The changes -- long overdue -- ship now.", 1, [2]],
+  ["dash-density", "One aside — just one — then a second paragraph.\n\nAnother — here.", 1, [2]],
+  ["dash-density", "Pages 10–20 and 30–40 cover the 2020–2024 data.", 0],
+  ["dash-density", "A single dash — fine here.", 0],
 ];
 
 export function runSelfTest() {

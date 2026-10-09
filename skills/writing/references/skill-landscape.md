@@ -18,8 +18,9 @@ Most public writing skills and "humanizer" prompts fall into one of two traps:
 | 320+ | `berelevant-ai/slopless` | Deterministic Gate | **Adopted (lint).** AST-based deterministic parser that flags `negation-reframe` and structural AI tells. A reliable gate, not a prompt. |
 | — | `simonw/tools` LLM cliché highlighter | Deterministic Gate | **Adopted (lint).** 38 regex/chain/echo detectors including Wikipedia Signs of AI writing. Ported to `cliche-lint.mjs`. Not a rewrite engine. |
 | 70+ | `ehmo/slopkit` (slopbeth) | Anti-Slop Guide | **Reference.** Good observation: replacing AI slop with clipped aphorisms and dramatic fragments is equally defective. |
-| 36,000+ | `blader/humanizer` | Viral Prompt | **Rejected.** Viral prompt catalog. Permits isolated dramatic fragments; its worked examples frequently teach staccato pacing. |
-| 15,000+ | `op7418/Humanizer-zh` | Translation / Fork | **Rejected.** Chinese localization of `blader/humanizer` with identical structural limitations. |
+| 55,000+ | `blader/humanizer` v3.1.0 | Pattern catalog | **Partially adopted (edit mode).** v3 flags dramatic fragments and one-line closers itself. Adopted: arguing with no one, vague association, writing about the document, re-explaining what the reader knows. Rejected: "alternate short and long" sentence advice, full rewrites, added reactions. |
+| — | `cursor/plugins` `unslop` | Rule list | **Partially adopted (edit mode).** Adopted: metaphor nouns, feeling instead of mechanism, over-compression. Rejected: "one idea per sentence" and blanket dash/parenthesis bans. |
+| 15,000+ | `op7418/Humanizer-zh` | Translation / Fork | **Not re-audited.** Localization of an earlier `blader/humanizer`. |
 | 360+ | `harshaneel/humanize` | Burstiness Injector | **Rejected.** Hard-bans negation framing, but explicitly requires a ≤5-word sentence every 3–4 lines, forcing unnatural choppy rhythm. |
 | 370+ | `jalaalrd/anti-ai-slop-writing` | Prompt | **Rejected.** Bans parataxis, then explicitly prescribes dramatic sentence fragments. |
 | 160+ | `Aboudjem/humanizer-skill` | Burstiness Injector | **Rejected.** Treats sentence-length distribution curves as the primary optimization target. |

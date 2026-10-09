@@ -90,6 +90,22 @@ Often-empty phrases: it's worth noting, it's important to note, at the end of th
 
 **Em dashes.** Do not use them as a default rhythm crutch. In short copy, use none. In longer drafts, 1-2 are fine if they clearly beat commas, periods, or parentheses. Remove clusters and decorative dashes.
 
+The patterns below are additions from [blader/humanizer](https://github.com/blader/humanizer) v3.1.0 (MIT) and [cursor/plugins `unslop`](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md). Their rhythm advice ("alternate short and long", "one idea per sentence") is deliberately not adopted.
+
+**Arguing with no one.** "This isn't mainly about...", "I'm not saying...", "A tempting approach would be...", "One might be tempted to...". The text answers an objection or rejects an option that appears nowhere else. Delete the defense and keep any real claim inside it. Keep an objection the text attributes or answers in full, and an option a reader would actually weigh.
+
+**Vague association.** "Associated with", "in connection with", "linked to", "tied to" where the source states the real relationship. "He was associated with the leadership of ExampleCorp" becomes "He was ExampleCorp's CFO." If the source does not say, keep the vague wording rather than invent a role.
+
+**Writing about the document.** "This section covers...", "The table below compares...", "This function was added to replace...", "compiled from...". Describe the subject. State a convention only when the reader cannot see it.
+
+**Re-explaining what the reader knows.** A reply that walks through the diagnosis and proves the plan before giving the decision. Lead with the decision; leave background the reader already has.
+
+**Metaphor nouns posing as technical terms.** substrate, wedge, vector, locus, nexus, primitive (as noun), harness (as metaphor), surface (as in "API surface"), bedrock, scaffolding (as metaphor), north star, flywheel, endgame. Use the concrete word: "substrate" becomes "base", "wedge in" becomes "add", "vector" becomes "way".
+
+**Feeling instead of mechanism.** "The database stays close at hand", "types that follow your schema". Name the mechanism or the number: "a column rename fails the build". If the sentence could appear unchanged in another project's docs, cut it.
+
+**Over-compression.** Dropped articles, verbless fragments, arrows, and private abbreviations. "Parser rejects bad date → exit 2, no write" becomes "The parser rejects a bad date, exits with code 2, and writes nothing." This is the technical-writing form of dramatic fragmentation.
+
 ## Workflow
 
 1. Read the full draft before editing.

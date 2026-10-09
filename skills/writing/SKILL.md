@@ -11,7 +11,7 @@ metadata:
 
 One skill. Rhythm first, then craft, then a minimum-edit cleanup, then a deterministic lint gate.
 
-Do not load humanizer or burstiness injectors. They ban "it's not X, it's Y" and then teach staccato fragments.
+Do not load a second humanizer or any burstiness injector alongside this skill. Useful patterns from `blader/humanizer` v3 are already in `references/edit.md`; its "alternate short and long sentences" advice is not.
 
 ## Mode
 
